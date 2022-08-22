@@ -2,8 +2,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -13,7 +12,7 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("result: "+calc(input));
+        System.out.println("result: " + calc(input));
 
     }
 
@@ -32,36 +31,8 @@ public class Main {
         }
 
         String[] arg = input.split("[+\\-/*]");    // делим входную строку по символу арифметического действия
-        char arithmeticSign = 0;                      //вводим переменную для хранения символа арифметического действия
-        if (arg[0].length() == 1) {                   // если первое число в входной строке длинной 1 символ
-            arithmeticSign = input.charAt(1);         // то символ арифметического действия стоит на позиции 1
-        } else if (arg[0].length() == 2) {             // если первое число в входной строке длинной 2 символа
-            arithmeticSign = input.charAt(2);          // то символ арифметического действия стоит на позиции 2
-        }
-
-        //Добавление hashMap со значениями римских и арабских чисел
-        HashMap<Integer, String> map100 = new HashMap<>();
-        map100.put(1, "I");
-        map100.put(4,"IV");
-        map100.put(5,"V");
-        map100.put(9,"IX");
-        map100.put(10,"X");
-        map100.put(40,"XL");
-        map100.put(50,"L");
-        map100.put(90,"XC");
-        map100.put(100,"C");
-
-        HashMap<Integer, String> mapTen = new HashMap<>();
-        mapTen.put(1, "I");
-        mapTen.put(2, "II");
-        mapTen.put(3, "III");
-        mapTen.put(4, "IV");
-        mapTen.put(5, "V");
-        mapTen.put(6, "VI");
-        mapTen.put(7, "VII");
-        mapTen.put(8, "VIII");
-        mapTen.put(9, "IX");
-        mapTen.put(10, "X");
+        char arithmeticSign = 0;                        //вводим переменную для хранения символа арифметического действия
+        arithmeticSign = input.charAt(arg[0].length()); // символ арифметического действия стоит на позиции равной длинне первого числа
 
         //проверка на то что числа лежат в диапазоне от 1 до 10 включительно
         int a = 0;
@@ -74,12 +45,12 @@ public class Main {
                 throw new Exception();
             }
         } else {
-             if (mapTen.containsValue(arg[0]) && mapTen.containsValue(arg[1])){
-
-            }else {
-                 throw new Exception();
-             }
-
+            a = romanToArab(arg[0]);
+            b = romanToArab(arg[1]);
+            if ((a <= 0 || a > 10) || (b <= 0 || b > 10)) {
+                System.out.println("Калькулятор должен принимать на вход числа от 1 до 10 включительно, не более.");
+                throw new Exception();
+            }
         }
 
         int resultNum = 0;
@@ -100,7 +71,53 @@ public class Main {
         System.out.println(String.valueOf(arithmeticSign));
         System.out.println(arg[0]);
         System.out.println(arg[1]);
-        result = String.valueOf(resultNum);
+        if (romanNumCondition){
+            result = arabToRoman(resultNum);
+        }else {
+            result = String.valueOf(resultNum);
+        }
         return result;
+    }
+
+    private static int romanToArab(String rom) {
+
+        HashMap<Character, Integer> map100 = new HashMap<>();
+        map100.put('I', 1);
+        map100.put('V', 5);
+        map100.put('X', 10);
+        map100.put('L', 50);
+        map100.put('C', 100);
+
+        int arab = 0;
+        int prev = 0;
+
+        for (int i = rom.length() - 1; i >= 0; i--) {
+            int actual = map100.get(rom.charAt(i));
+            if (actual < prev) {
+                arab -= actual;
+            } else {
+                arab += actual;
+            }
+            prev = actual;
+        }
+        System.out.println("roman: " + rom);
+        System.out.println("arab: " + arab);
+        return arab;
+    }
+
+    private static String arabToRoman(int arab) {
+        System.out.println("arab: " + arab);
+        int[] arabNum = {100, 90, 50, 40, 10, 9, 5, 4, 1};
+        String[] romNum = {"C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < arabNum.length && arab > 0; i++){
+            while (arab >= arabNum[i]){
+                arab -= arabNum[i];
+                sb.append(romNum[i]);
+            }
+        }
+        System.out.println("roman: " + sb.toString());
+        return sb.toString();
     }
 }
